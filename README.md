@@ -10,6 +10,7 @@
 - نصب و فعال‌سازی OpenSSH Server روی پورت `22`
 - نصب `network-manager-l2tp` و `network-manager-l2tp-gnome`
 - ثبت نام‌های داخلی سرویس‌ها در `/etc/hosts`
+- افزودن کاربر اتصال Ansible به گروه `docker` برای اجرای Docker بدون `sudo`
 
 اگر نصب Docker از مخزن با خطایی مانند `403` مواجه شود، نصب از
 `https://get.docker.com/` ادامه پیدا می‌کند.
@@ -84,4 +85,11 @@ ansible-playbook site.yml --ask-become-pass
 
 ```sh
 ansible-playbook site.yml --ask-pass --ask-become-pass
+```
+
+پس از اولین اجرا، کاربر مقصد باید یک‌بار logout/login کند یا دستور زیر را
+اجرا کند تا عضویت جدید گروه Docker در همان ترمینال فعال شود:
+
+```bash
+newgrp docker
 ```

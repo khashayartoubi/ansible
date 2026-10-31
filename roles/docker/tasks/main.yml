@@ -78,6 +78,12 @@
     enabled: true
     state: started
 
+- name: Add Ansible connection user to Docker group
+  ansible.builtin.user:
+    name: "{{ docker_non_root_user }}"
+    groups: docker
+    append: true
+
 - name: Read installed Docker versions
   ansible.builtin.command: "{{ item }}"
   changed_when: false
