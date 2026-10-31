@@ -1,0 +1,91 @@
+---
+- name: Create Docker APT keyring directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Install Docker APT signing key
+  ansible.builtin.get_url:
+    url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+    dest: /etc/apt/keyrings/docker.asc
+    mode: '0644'
+
+- name: Configure Docker APT repository
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [arch={{ docker_apt_architecture }} signed-by=/etc/apt/keyrings/docker.asc]
+      https://download.docker.com/linux/{{ ansible_distribution | lower }}
+      {{ ansible_distribution_release }} stable
+    filename: docker
+    state: present
+    update_cache: true
+
+- name: Install requested Docker Engine version
+  block:
+    - name: Install Docker Engine packages from Docker APT repository
+      ansible.builtin.apt:
+        name: ["docker-ce={{ docker_version }}*", "docker-ce-cli={{ docker_version }}*", containerd.io]
+        state: present
+        update_cache: true
+  rescue:
+    - name: Install Docker using fallback installer after repository failure
+      ansible.builtin.shell: >-
+        wget -qO- https://get.docker.com/ |
+        VERSION={{ docker_version }} sh
+      changed_when: true
+
+- name: Create Docker CLI plugin directory
+  ansible.builtin.file:
+    path: /usr/local/lib/docker/cli-plugins
+    state: directory
+    mode: '0755'
+
+- name: Install requested Docker Compose release
+  ansible.builtin.get_url:
+    url: >-
+      https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/
+      docker-compose-linux-{{ docker_compose_architecture }}
+    dest: /usr/local/lib/docker/cli-plugins/docker-compose
+    mode: '0755'
+
+- name: Create Docker configuration directory
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    mode: '0755'
+
+- name: Configure Docker daemon
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Reload systemd daemon after Docker configuration
+  ansible.builtin.command: systemctl daemon-reload
+  changed_when: false
+
+- name: Restart Docker after Docker configuration
+  ansible.builtin.service:
+    name: docker
+    state: restarted
+
+- name: Enable and start Docker
+  ansible.builtin.service:
+    name: docker
+    enabled: true
+    state: started
+
+- name: Read installed Docker versions
+  ansible.builtin.command: "{{ item }}"
+  changed_when: false
+  register: docker_installed_versions
+  loop: [docker --version, docker compose version]
+
+- name: Assert requested Docker versions
+  ansible.builtin.assert:
+    that:
+      - docker_installed_versions.results[0].stdout is search('Docker version ' ~ docker_version ~ ',')
+      - docker_installed_versions.results[1].stdout is search('Docker Compose version ' ~ docker_compose_version)

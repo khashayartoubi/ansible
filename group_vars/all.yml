@@ -1,0 +1,16 @@
+---
+docker_version: "29.5.2"
+docker_compose_version: "v5.0.2"
+agahyarai_host_entries:
+  - "192.168.10.202 bamboo.agahyarai.local"
+  - "192.168.10.202 bitbucket.agahyarai.local"
+  - "192.168.10.202 docker.agahyarai.local"
+  - "192.168.10.202 jira.agahyarai.local"
+  - "192.168.10.202 registry.agahyarai.local"
+  - "192.168.10.202 repository.agahyarai.local"
+  - "192.168.10.202 nexus.agahyarai.local"
+  - "192.168.10.202 conf.agahyarai.local"
+  - "192.168.10.202 crowd.agahyarai.local"
+  - "192.168.10.202 aai.local"
+  - "192.168.10.163 mailu.agahyarai.local"
+  - "192.168.10.216 mattermost.agahyarai.local"

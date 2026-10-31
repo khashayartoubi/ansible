@@ -1,0 +1,28 @@
+---
+- name: Verify Debian-based operating system
+  ansible.builtin.assert:
+    that: ansible_os_family == 'Debian'
+    fail_msg: This playbook currently supports Debian and Ubuntu only.
+
+- name: Install common packages, VPN support, and requested Git version
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - wget
+      - network-manager-l2tp
+      - network-manager-l2tp-gnome
+      - "git=1:2.34.1-*"
+    state: present
+    update_cache: true
+
+- name: Verify Git version
+  ansible.builtin.command: git --version
+  changed_when: false
+  register: common_git_version
+
+- name: Assert requested Git version
+  ansible.builtin.assert:
+    that: common_git_version.stdout is search('git version 2.34.1')

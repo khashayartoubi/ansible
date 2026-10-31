@@ -1,0 +1,26 @@
+---
+- name: Install OpenSSH Server
+  ansible.builtin.apt:
+    name: openssh-server
+    state: present
+    update_cache: true
+
+- name: Remove existing SSH port directives
+  ansible.builtin.replace:
+    path: /etc/ssh/sshd_config
+    regexp: '^(#\s*)?Port\s+.*\n'
+    replace: ''
+  notify: Validate and restart ssh
+
+- name: Configure SSH to listen on port 22
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    line: Port 22
+    insertbefore: BOF
+  notify: Validate and restart ssh
+
+- name: Enable and start SSH
+  ansible.builtin.service:
+    name: ssh
+    enabled: true
+    state: started

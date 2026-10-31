@@ -1,0 +1,7 @@
+---
+- name: Add Agahyarai service names to /etc/hosts
+  ansible.builtin.blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} ANSIBLE MANAGED AGAHYARAI HOSTS"
+    block: "{{ agahyarai_host_entries | join('\\n') }}"
+    create: false

@@ -1,0 +1,10 @@
+---
+- name: Configure development hosts
+  hosts: development
+  gather_facts: true
+
+  roles:
+    - common
+    - docker
+    - ssh
+    - hosts
