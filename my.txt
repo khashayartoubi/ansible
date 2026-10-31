@@ -1,0 +1,3 @@
+cd /opt/ansible
+ansible-playbook site.yml --limit target-server --ask-become-pass #sshkey
+ansible-playbook site.yml --limit target-server --ask-pass --ask-become-pass #password

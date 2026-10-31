@@ -25,7 +25,9 @@
   block:
     - name: Install Docker Engine packages from Docker APT repository
       ansible.builtin.apt:
-        name: ["docker-ce={{ docker_version }}*", "docker-ce-cli={{ docker_version }}*", containerd.io]
+        # Docker's Debian packages use the epoch "5:" (for example,
+        # 5:29.5.2-1~ubuntu.22.04~jammy).
+        name: ["docker-ce=5:{{ docker_version }}*", "docker-ce-cli=5:{{ docker_version }}*", containerd.io]
         state: present
         update_cache: true
   rescue:
@@ -43,9 +45,7 @@
 
 - name: Install requested Docker Compose release
   ansible.builtin.get_url:
-    url: >-
-      https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/
-      docker-compose-linux-{{ docker_compose_architecture }}
+    url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-linux-{{ docker_compose_architecture }}"
     dest: /usr/local/lib/docker/cli-plugins/docker-compose
     mode: '0755'
 
